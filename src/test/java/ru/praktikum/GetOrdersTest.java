@@ -53,7 +53,7 @@ public class GetOrdersTest {
     @Step("Тест на получение списка заказов с заданным courierId")
     public void testGetOrdersWithValidCourierId() {
         // Создаем курьера
-        String login = "uniqueLoginForThisTest111";
+        String login = "uniqueLoginForThisTest11111";
         String password = "somePassword";
         String firstName = "Some First Name";
 

@@ -41,7 +41,7 @@ public class CreateCourierTest {
     @Test
     @Step("Тест на создание курьера")
     public void testCreateCourier() {
-        String login = "ninjaZ111"; // Используем уникальное имя для теста
+        String login = "ninjaZ11111"; // Используем уникальное имя для теста
         String password = "1234";
         String firstName = "saske";
 

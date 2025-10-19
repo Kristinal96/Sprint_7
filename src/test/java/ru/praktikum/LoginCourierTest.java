@@ -53,7 +53,7 @@ public class LoginCourierTest {
     @Test
     @Step("Тест на авторизацию курьера")
     public void testLoginCourier() {
-        String login = "ninjaZZ111";
+        String login = "ninjaZZ11111";
         String password = "1234";
         String firstName = "saske";
 
