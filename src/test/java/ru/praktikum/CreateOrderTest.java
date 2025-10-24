@@ -3,110 +3,61 @@ package ru.praktikum;
 import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.CoreMatchers.*;
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import ru.praktikum.api.OrderApi;
+import ru.praktikum.models.Order;
+import static org.hamcrest.Matchers.notNullValue;
 
+import java.util.Arrays;
+
+@RunWith(Parameterized.class)
 public class CreateOrderTest {
 
-    @Before
-    public void setUp() {
+    private static OrderApi orderApi;
+    private String[] colors;
+
+    public CreateOrderTest(String[] colors) {
+        this.colors = colors;
+    }
+
+    @BeforeClass
+    public static void setup() {
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
+        orderApi = new OrderApi();
     }
 
-    @Step("Создание заказа")
-    public Response createOrder(
-            String firstName,
-            String lastName,
-            String address,
-            int metroStation,
-            String phone,
-            int rentTime,
-            String deliveryDate,
-            String comment,
-            List<String> color
-    ) {
-        return given()
-                .contentType("application/json")
-                .body("{" +
-                        "\"firstName\":\"" + firstName + "\"," +
-                        "\"lastName\":\"" + lastName + "\"," +
-                        "\"address\":\"" + address + "\"," +
-                        "\"metroStation\":" + metroStation + "," +
-                        "\"phone\":\"" + phone + "\"," +
-                        "\"rentTime\":" + rentTime + "," +
-                        "\"deliveryDate\":\"" + deliveryDate + "\"," +
-                        "\"comment\":\"" + comment + "\"," +
-                        "\"color\":[" + formatColors(color) + "]" +
-                        "}")
-                .when()
-                .post("/api/v1/orders");
-    }
-
-    private String formatColors(List<String> colors) {
-        return String.join(",", colors.stream().map(c -> "\"" + c + "\"").toArray(String[]::new));
+    @Parameterized.Parameters(name = "Тест с цветами: {0}")
+    public static Iterable<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {new String[]{"BLACK"}},
+                {new String[]{"GREY"}},
+                {new String[]{"BLACK", "GREY"}},
+                {new String[]{}}, // Без указания цвета
+        });
     }
 
     @Test
-    @Step("Тест на создание заказа с черным цветом")
-    public void testCreateOrderWithBlackColor() {
-        String firstName = "Naruto";
-        String lastName = "Uchiha";
-        String address = "Konoha, 142 apt.";
-        int metroStation = 4;
-        String phone = "+7 800 355 35 35";
-        int rentTime = 5;
-        String deliveryDate = "2020-06-06";
-        String comment = "Saske, come back to Konoha";
-        List<String> color = new ArrayList<>(List.of("BLACK")); // Использование черного цвета
+    //("Тест на создание заказа с указанными цветами")
+    public void testCreateOrderWithColors() {
+        Order order = new Order(
+                "Naruto",
+                "Uchiha",
+                "Konoha, 142 apt.",
+                4,
+                "+7 800 355 35 35",
+                5,
+                "2020-06-06",
+                "Saske, come back to Konoha",
+                colors
+        );
 
-        Response response = createOrder(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color);
-
-        response.then()
-                .statusCode(201) // Ожидаемый статус 201 (заказ создан)
-                .body("track", notNullValue()); // Ожидание наличия номера трека
-    }
-
-    @Test
-    @Step("Тест на создание заказа с обоими цветами")
-    public void testCreateOrderWithBothColors() {
-        String firstName = "Naruto";
-        String lastName = "Uchiha";
-        String address = "Konoha, 142 apt.";
-        int metroStation = 4;
-        String phone = "+7 800 355 35 35";
-        int rentTime = 5;
-        String deliveryDate = "2020-06-06";
-        String comment = "Saske, come back to Konoha";
-        List<String> color = new ArrayList<>(List.of("BLACK", "GREY")); // Два цвета
-
-        Response response = createOrder(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color);
+        Response response = orderApi.createOrder(order);
 
         response.then()
-                .statusCode(201) // Ожидаемый статус 201 (заказ создан)
-                .body("track", notNullValue()); // Ожидание наличия номера трека
-    }
-
-    @Test
-    @Step("Тест на создание заказа без указания цвета")
-    public void testCreateOrderWithoutColor() {
-        String firstName = "Naruto";
-        String lastName = "Uchiha";
-        String address = "Konoha, 142 apt.";
-        int metroStation = 4;
-        String phone = "+7 800 355 35 35";
-        int rentTime = 5;
-        String deliveryDate = "2020-06-06";
-        String comment = "Saske, come back to Konoha";
-        List<String> color = new ArrayList<>(); // Без выбора цвета
-
-        Response response = createOrder(firstName, lastName, address, metroStation, phone, rentTime, deliveryDate, comment, color);
-
-        response.then()
-                .statusCode(201) // Ожидаемый статус 201 (заказ создан)
-                .body("track", notNullValue()); // Ожидание наличия номера трека
+                .statusCode(201)
+                .body("track", notNullValue());
     }
 }

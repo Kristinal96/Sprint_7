@@ -14,8 +14,21 @@
         <maven.compiler.target>11</maven.compiler.target>
         <junit.version>4.13.2</junit.version>
         <rest-assured.version>4.5.0</rest-assured.version>
-        <allure.version>2.17.3</allure.version>
+        <allure.version>2.25.0</allure.version> <!-- Повышаем версию до актуальной -->
+        <aspectj.version>1.9.21</aspectj.version> <!-- Добавляем версию AspectJ -->
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-bom</artifactId>
+                <version>${allure.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- JUnit 4 -->
@@ -34,38 +47,66 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Allure -->
+        <!-- Allure для JUnit  -->
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit4</artifactId>
-            <version>${allure.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- AspectJ Weaver для сборки отчета Allure -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
+
+        <!-- Allure REST Assured интеграция -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-rest-assured</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Подключение Allure для интеграционных тестов -->
             <plugin>
+                <!-- настройка плагина maven-surefire-plugin -->
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.3</version>
                 <configuration>
-                    <systemPropertyVariables>
-                        <allure.results.directory>target/allure-results</allure.results.directory>
-                    </systemPropertyVariables>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
+                    <systemProperties>
+                        <property>
+                            <!-- папка, в которую будут генерироваться отчёты Allure -->
+                            <name>allure.results.directory</name>
+                            <value>${project.build.directory}/allure-results</value>
+                        </property>
+                    </systemProperties>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
-
-            <!-- Плагин для генерации отчёта Allure -->
+            <!-- подключение плагина allure-maven для вызова функций Allure с помощью Maven -->
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
-                <version>2.12.0</version>
-                <configuration>
-                    <reportVersion>${allure.version}</reportVersion>
-                    <outputDirectory>target/site/allure</outputDirectory>
-                </configuration>
+                <version>2.15.2</version>
             </plugin>
         </plugins>
     </build>
