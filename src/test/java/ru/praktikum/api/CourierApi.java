@@ -3,8 +3,10 @@ package ru.praktikum.api;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import ru.praktikum.models.Courier;
+import io.qameta.allure.Step;
 
 public class CourierApi {
+    @Step("Создание курьера")
     public Response createCourier(Courier courier) {
         return RestAssured.given()
                 .contentType("application/json")
@@ -13,10 +15,12 @@ public class CourierApi {
                 .post("/api/v1/courier");
     }
 
+    @Step("Удаление курьера")
     public Response deleteCourier(String courierId) {
         return RestAssured.delete("/api/v1/courier/" + courierId);
     }
 
+    @Step("Авторизация курьера")
     public Response loginCourier(Courier courier) {
         return RestAssured.given()
                 .contentType("application/json")

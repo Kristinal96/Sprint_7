@@ -7,6 +7,7 @@ import org.junit.*;
 import ru.praktikum.api.CourierApi;
 import ru.praktikum.models.Courier;
 import static org.hamcrest.Matchers.*;
+import static org.apache.http.HttpStatus.*;
 
 public class CreateCourierTest {
 
@@ -19,11 +20,6 @@ public class CreateCourierTest {
         courierApi = new CourierApi();
     }
 
-    @Before
-    public void prepareTestData() {
-
-    }
-
     @After
     public void cleanUp() {
         if (courierId != null) {
@@ -32,9 +28,9 @@ public class CreateCourierTest {
     }
 
     @Test
-    @Step("Тест на успешное создание курьера")
+    //("Тест на успешное создание курьера")
     public void testCreateCourier() {
-        Courier validCourier = new Courier("ninjaZ11111111", "1234", "saske");
+        Courier validCourier = new Courier("ninjaZ111111111", "1234", "saske");
         Response response = courierApi.createCourier(validCourier);
 
         response.then()
@@ -45,27 +41,38 @@ public class CreateCourierTest {
     }
 
     @Test
-    @Step("Тест на запрет создания одинакового курьера дважды")
+    //("Тест на запрет создания одинакового курьера дважды")
     public void testCantCreateSameCourierTwice() {
-        Courier sameCourier = new Courier("existing_login111", "1234", "saske");
+        Courier sameCourier = new Courier("existing_login1111", "1234", "saske");
 
         // первая регистрация успешна
         Response firstResponse = courierApi.createCourier(sameCourier);
         firstResponse.then()
-                .statusCode(201)
+                .statusCode(SC_CREATED)
                 .body("ok", equalTo(true));
 
         // вторая регистрация должна завершиться ошибкой
         Response secondResponse = courierApi.createCourier(sameCourier);
         secondResponse.then()
-                .statusCode(409)
+                .statusCode(SC_CONFLICT)
                 .body("message", containsString("Этот логин уже используется. Попробуйте другой."));
     }
 
     @Test
-    @Step("Тест на отсутствие обязательных полей")
+    //("Тест на отсутствие обязательных полей")
     public void testMissingRequiredFields() {
         Courier incompleteCourier = new Courier("ninja", "", "saske");
+        Response response = courierApi.createCourier(incompleteCourier);
+
+        response.then()
+                .statusCode(400)
+                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
+    }
+
+    @Test
+    //Тест на отсутствие логина
+    public void testMissingLogin() {
+        Courier incompleteCourier = new Courier("", "1234", "saske");
         Response response = courierApi.createCourier(incompleteCourier);
 
         response.then()

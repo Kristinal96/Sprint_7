@@ -21,7 +21,7 @@ public class LoginCourierTest {
 
     @Before
     public void prepareTestData() {
-        Courier courier = new Courier("ninjaZZ111111", "1234", "saske");
+        Courier courier = new Courier("ninjaZZ1111111", "1234", "saske");
         Response res = courierApi.createCourier(courier);
         courierId = res.jsonPath().getString("id");
     }
@@ -34,9 +34,9 @@ public class LoginCourierTest {
     }
 
     @Test
-    @Step("Тест на успешную авторизацию")
+    //("Тест на успешную авторизацию")
     public void testValidLogin() {
-        Courier validCourier = new Courier("ninjaZZ111111", "1234", "saske");
+        Courier validCourier = new Courier("ninjaZZ1111111", "1234", "saske");
         Response response = courierApi.loginCourier(validCourier);
 
         response.then()
@@ -45,9 +45,9 @@ public class LoginCourierTest {
     }
 
     @Test
-    @Step("Тест на неудачную авторизацию")
+    //("Тест на неудачную авторизацию") Не верный логин
     public void testInvalidLogin() {
-        Courier invalidCourier = new Courier("invalid_login", "invalid_password", "saske");
+        Courier invalidCourier = new Courier("invalid_login", "1234", "saske");
         Response response = courierApi.loginCourier(invalidCourier);
 
         response.then()
@@ -56,7 +56,18 @@ public class LoginCourierTest {
     }
 
     @Test
-    @Step("Тест на авторизацию без обязательных полей")
+    //("Тест на неудачную авторизацию") Не верный пароль
+    public void testInvalidPassword() {
+        Courier invalidCourier = new Courier("ninjaZZ1111111", "invalid_password", "saske");
+        Response response = courierApi.loginCourier(invalidCourier);
+
+        response.then()
+                .statusCode(404)
+                .body("message", equalTo("Учетная запись не найдена"));
+    }
+
+    @Test
+    //("Тест на авторизацию без обязательных полей")
     public void testLoginWithoutRequiredFields() {
         Courier incompleteCourier = new Courier("ninja", "", "saske");
         Response response = courierApi.loginCourier(incompleteCourier);

@@ -24,7 +24,7 @@ public class GetOrdersTest {
 
     @Before
     public void prepareTestData() {
-        Courier courier = new Courier("uniqueLoginForThisTest1111111", "somePassword", "Test User");
+        Courier courier = new Courier("uniqueLoginForThisTest11111111", "somePassword", "Test User");
         Response res = courierApi.createCourier(courier);
         courierId = res.jsonPath().getString("id");
     }
@@ -37,7 +37,7 @@ public class GetOrdersTest {
     }
 
     @Test
-    @Step("Тест на получение списка заказов с заданным courierId")
+    //("Тест на получение списка заказов с заданным courierId")
     public void testGetOrdersWithValidCourierId() {
         Response ordersResponse = orderApi.getOrdersByCourierId(courierId);
 
@@ -47,7 +47,7 @@ public class GetOrdersTest {
     }
 
     @Test
-    @Step("Тест на получение списка заказов с invalid courierId")
+    //("Тест на получение списка заказов с invalid courierId")
     public void testGetOrdersWithInvalidCourierId() {
         String invalidCourierId = "9999";
 
@@ -59,7 +59,7 @@ public class GetOrdersTest {
     }
 
     @Test
-    @Step("Тест на получение списка заказов без указания courierId")
+    //("Тест на получение списка заказов без указания courierId")
     public void testGetOrdersWithoutCourierId() {
         Response response = orderApi.getAllOrders();
 

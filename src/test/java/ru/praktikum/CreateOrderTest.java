@@ -40,7 +40,7 @@ public class CreateOrderTest {
     }
 
     @Test
-    @Step("Тест на создание заказа с указанными цветами")
+    //("Тест на создание заказа с указанными цветами")
     public void testCreateOrderWithColors() {
         Order order = new Order(
                 "Naruto",
